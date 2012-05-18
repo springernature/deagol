@@ -4,7 +4,7 @@ module Gollum
 
     Wiki.page_class = self
 
-    VALID_PAGE_RE = /^(.+)\.(html|css|vm)$/i
+    VALID_PAGE_RE = /^(.+)\.(html|css|vm|me)$/i
     FORMAT_NAMES = { :html      => "HTML",
                      :css       => "CSS",
                      :velocity  => "Velocity" }
@@ -256,6 +256,7 @@ module Gollum
         when :html      then 'html'
         when :css       then 'css'
         when :velocity  then 'vm'
+        when :me        then 'me'
       end
     end
 

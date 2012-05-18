@@ -175,7 +175,12 @@ module Precious
       begin
         wiki.write_page(filename_to_write, format, params[:content], commit_message)
         page = wiki.page(name)
-        redirect "/#{CGI.escape(page.path).gsub('%2F','/')}"
+        if name == 'delete.me'
+          content_type 'application/json', :charset => 'utf-8'
+          return '{ "status": "OK" }'
+        else
+          redirect "/#{CGI.escape(page.path).gsub('%2F','/')}"
+        end
       rescue Gollum::DuplicatePageError => e
         @message = "Duplicate page: #{e.message}"
         mustache :error
