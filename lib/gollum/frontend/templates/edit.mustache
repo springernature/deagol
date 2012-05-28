@@ -1,19 +1,67 @@
 <div id="wiki-wrapper" class="edit">
-<div id="head">
-  <h1>Editing <strong>{{title}}</strong></h1>
-  <ul class="actions">
-    <li class="minibutton"><a href="/" class="action-edit-page">Home</a></li>
-    <li class="minibutton"><a href="/{{escaped_name}}" class="action-view-page">View Page</a></li>
-    <li class="minibutton"><a href="/history/{{escaped_name}}" class="action-page-history">Page History</a></li>
-  </ul>
-</div>
+  <div id="head">
+    <h1>Editing <strong>{{title}}</strong></h1>
+    <ul class="actions">
+      <li class="minibutton"><a href="/" class="action-edit-page">Home</a></li>
+      <li class="minibutton"><a href="/{{escaped_name}}" class="action-view-page">View Page</a></li>
+      <li class="minibutton"><a href="/history/{{escaped_name}}" class="action-page-history">Page History</a></li>
+    </ul>
+  </div>
+  <div id="warnings"></div>
   <div id="wiki-content">{{>editor}}</div>
 </div>
 <script type="text/javascript">
-window.onbeforeunload = function(){ return "Leaving will discard all edits!" };
-$("#gollum-editor-submit").click( function() { window.onbeforeunload = null; } );
+  window.onbeforeunload = function(){ return "Leaving will discard all edits!" };
+  $("#gollum-editor-submit").click( function() { window.onbeforeunload = null; } );
 
-jQuery(document).ready(function() {
-  $.GollumEditor();
-});
+  var faye_client    = faye_client_with_auth('{{faye_client_id}}','{{faye_auth_token}}');
+  var others_editing = {};
+  var ping_interval  = 1000;
+
+  function notify_others_of_editing() {
+    faye_client.publish(
+      '/{{faye_client_id}}/editing_notifications',
+      {
+        user:  '{{current_user_name}}',
+        email: '{{current_user_email}}',
+        page:  '{{escaped_name}}'
+      }
+    );
+  }
+
+  function clear_old_warning_messages() {
+    for (var user_key in others_editing) {
+      if (others_editing.hasOwnProperty(user_key)) {
+        var now = (new Date()).getTime();
+        if ((now - others_editing[user_key]) > (ping_interval * 2)) {
+          $('#warnings p.'+user_key).remove();
+        }
+      }
+    }
+  }
+
+  faye_client.subscribe(
+    '/{{faye_client_id}}/editing_notifications',
+    function(message) {
+    if (message.page === '{{escaped_name}}' && message.user !== '{{current_user_name}}') {
+        var warning_key = message.user.toLowerCase().replace(/[^a-z]/g, '');
+        var warning_msg = '<p class="'+warning_key+'"><strong>WARNING:</strong> '+message.user+' (<a href="mailto:'+message.email+'">'+message.email+'</a>) is also editing this page.</p>';
+
+        others_editing[warning_key] = (new Date()).getTime();
+
+        if (! $('#warnings p.' + warning_key).length ) {
+          $('#warnings').append(warning_msg);
+        }
+      }
+    }
+  )
+
+  $(document).ready(function() {
+    $.GollumEditor();
+
+    window.setInterval(function() {
+      notify_others_of_editing();
+      clear_old_warning_messages();
+    }, ping_interval);
+  });
 </script>

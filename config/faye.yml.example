@@ -1,0 +1,5 @@
+---
+server: http://localhost:5000/faye
+client_id: deagol
+password: letmein
+
