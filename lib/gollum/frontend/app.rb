@@ -62,7 +62,9 @@ module Precious
 
       # Extract the path string that Gollum::Wiki expects
       def extract_path(file_path)
-        pn = Pathname.new(file_path.dup).dirname.to_s.sub(/^\//,'')
+        path = file_path.dup
+        path << 'foo.tmp' if file_path =~ /\/$/
+        pn = Pathname.new(path).dirname.to_s.sub(/^\//,'')
         pn unless ['','.','/'].include?(pn)
       end
 
