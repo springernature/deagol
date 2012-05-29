@@ -244,7 +244,13 @@ module Gollum
       filename = Gollum::Page.cname(name)
       dir      = page_file_dir || ''
 
-      committer.add_to_index(dir, filename, format, data)
+      if name == '.gitkeep'
+        filename = '.gitkeep'
+        committer.add_to_index_no_checks(dir, filename)
+      else
+        committer.add_to_index(dir, filename, format, data)
+      end
+
       committer.after_commit do |index, sha|
         @access.refresh
         index.update_working_dir(dir, filename, format)

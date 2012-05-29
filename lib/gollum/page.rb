@@ -4,7 +4,7 @@ module Gollum
 
     Wiki.page_class = self
 
-    VALID_PAGE_RE = /^(.+)\.(html|css|vm|me)$/i
+    VALID_PAGE_RE = /^(.+)\.(html|css|vm)$/i
     FORMAT_NAMES = { :html      => "HTML",
                      :css       => "CSS",
                      :velocity  => "Velocity" }
@@ -20,7 +20,11 @@ module Gollum
     #
     # Returns the filename if the extension is understood.
     def self.valid_filename?(filename)
-      filename.to_s =~ VALID_PAGE_RE && filename
+      if filename == '.gitkeep'
+        '.gitkeep'
+      else
+        filename.to_s =~ VALID_PAGE_RE && filename
+      end
     end
 
     # Checks if a filename has a valid extension understood by GitHub::Markup.
