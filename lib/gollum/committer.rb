@@ -107,6 +107,29 @@ module Gollum
       index.add(fullpath, @wiki.normalize(data))
     end
 
+
+    # Adds an empty file to the given Index - doesn't try to check
+    # file extensions and the like.
+    #
+    # dir    - The String subdirectory of the Gollum::Page without any
+    #          prefix or suffix slashes (e.g. "foo/bar").
+    # name   - The String name of the file to be created
+    def add_to_index_no_checks(dir, name)
+      path = ::File.join(dir,name)
+
+      if index.current_tree && tree = index.current_tree / dir
+        downpath = path.downcase.sub(/\.\w+$/, '')
+        tree.blobs.each do |blob|
+          file = blob.name.downcase.sub(/\.\w+$/, '')
+          if downpath == file
+            raise DuplicatePageError.new(dir, blob.name, path)
+          end
+        end
+      end
+
+      index.add(path, '')
+    end
+
     # Update the given file in the repository's working directory if there
     # is a working directory present.
     #
@@ -119,11 +142,13 @@ module Gollum
     def update_working_dir(dir, name, format)
       unless @wiki.repo.bare
         if @wiki.page_file_dir
-          dir = dir.size.zero? ? @wiki.page_file_dir : ::File.join(dir, @wiki.page_file_dir)
+          dir = dir.size.zero? ? @wiki.page_file_dir : dir
         end
 
         path =
-          if dir == ''
+          if name == '.gitkeep'
+            ::File.join(dir, name)
+          elsif dir == ''
             @wiki.page_file_name(name, format)
           else
             ::File.join(dir, @wiki.page_file_name(name, format))
