@@ -245,7 +245,7 @@ module Precious
     get '/compare/:name/:version_list' do
       authentication_required!
       @path        = extract_path(params[:name].dup)
-      @name        = params[:name].split('/').last
+      @name        = extract_name(params[:name])
       @versions    = params[:version_list].split(/\.{2,3}/)
       wiki_options = settings.wiki_options.merge({ :page_file_dir => @path })
       wiki         = Gollum::Wiki.new(settings.gollum_path, wiki_options)
