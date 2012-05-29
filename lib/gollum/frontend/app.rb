@@ -339,7 +339,11 @@ module Precious
     end
 
     def commit_message
-      { :message => params[:message] }
+      {
+        :name    => current_user[:name],
+        :email   => current_user[:email],
+        :message => params[:message]
+      }
     end
   end
 end
