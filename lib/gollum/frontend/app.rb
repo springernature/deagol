@@ -309,8 +309,12 @@ module Precious
       show_page_or_file(params[:splat].first)
     end
 
-    def show_page_or_file(name)
-      wiki = Gollum::Wiki.new(settings.gollum_path, settings.wiki_options)
+    def show_page_or_file(fullpath)
+      path         = extract_path(fullpath)
+      name         = extract_name(fullpath)
+      wiki_options = settings.wiki_options.merge({ :page_file_dir => path })
+      wiki         = Gollum::Wiki.new(settings.gollum_path, wiki_options)
+
       if page = wiki.page(name)
         @page = page
         @name = name
