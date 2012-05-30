@@ -17,6 +17,9 @@
     <li class="minibutton"><a href="/history/{{escaped_name}}" class="action-page-history">Page History</a></li>
   </ul>
 </div>
+
+{{>flash_messages}}
+
 <div id="wiki-content">
 <div class="{{#has_header}}has-header{{/has_header}}{{#has_footer}} has-footer{{/has_footer}}{{#has_sidebar}} has-rightbar{{/has_sidebar}}{{#has_toc}} has-toc{{/has_toc}}">
   {{#has_toc}}

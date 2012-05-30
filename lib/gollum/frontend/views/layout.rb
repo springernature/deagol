@@ -6,7 +6,7 @@ module Precious
       include Rack::Utils
       alias_method :h, :escape_html
 
-      attr_reader :name
+      attr_reader :name, :errors, :notices
 
       def escaped_name
         if @path
@@ -18,6 +18,16 @@ module Precious
 
       def title
         "Home"
+      end
+
+      def has_errors?
+        @errors = @flash[:error]
+        @errors
+      end
+
+      def has_notices?
+        @notices = @flash[:notice]
+        @notices
       end
     end
   end
