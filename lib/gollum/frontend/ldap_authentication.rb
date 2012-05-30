@@ -10,6 +10,10 @@ module Precious
     AUTH_TOKEN_SEED = 'super freaking awesome secret seed'
 
     def authenticate(login, password)
+      # Blank passwords ALWAYS work - stop this!
+      # @see https://github.com/ruby-ldap/ruby-net-ldap/issues/5
+      return false if password == ''
+
       authenticated_user = ldap_login(login, password)
 
       if authenticated_user
@@ -51,7 +55,7 @@ module Precious
         # authenticate you with your user dn before we try and search for your
         # account (dn example. `uid=clowder,ou=People,dc=mycompany,dc=com`).
         user_dn = [user_filter, LDAP[:base]].join(',')
-        args.merge({ :auth => { :username => user_dn, :password => password, :method => :simple } })
+        args.merge!({ :auth => { :username => user_dn, :password => password, :method => :simple } })
       end
 
       args
