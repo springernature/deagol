@@ -164,7 +164,7 @@ module Precious
 
     post '/create' do
       authentication_required!
-      name         = params[:page].split('/').last
+      name         = extract_name(params[:page])
       path         = extract_path(params[:page].dup)
       wiki_options = settings.wiki_options.merge({ :page_file_dir => path })
       wiki         = Gollum::Wiki.new(settings.gollum_path, wiki_options)
@@ -178,7 +178,12 @@ module Precious
       begin
         wiki.write_page(filename_to_write, format, params[:content], commit_message)
         page = wiki.page(name)
-        redirect "/#{CGI.escape(page.path).gsub('%2F','/')}"
+        if name == '.gitkeep'
+          content_type 'application/json', :charset => 'utf-8'
+          return '{ "status": "OK" }'
+        else
+          redirect "/#{CGI.escape(page.path).gsub('%2F','/')}"
+        end
       rescue Gollum::DuplicatePageError => e
         @message = "Duplicate page: #{e.message}"
         mustache :error

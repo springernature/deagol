@@ -20,7 +20,11 @@ module Gollum
     #
     # Returns the filename if the extension is understood.
     def self.valid_filename?(filename)
-      filename.to_s =~ VALID_PAGE_RE && filename
+      if filename == '.gitkeep'
+        '.gitkeep'
+      else
+        filename.to_s =~ VALID_PAGE_RE && filename
+      end
     end
 
     # Checks if a filename has a valid extension understood by GitHub::Markup.
@@ -256,6 +260,7 @@ module Gollum
         when :html      then 'html'
         when :css       then 'css'
         when :velocity  then 'vm'
+        when :me        then 'me'
       end
     end
 

@@ -46,6 +46,7 @@ module Precious
               folder_link = "<a href=\"/pages/#{folder_path}/\" class=\"folder\">#{folder}</a>"
               files_folders << folder_link if !files_folders.include?(folder_link)
             else
+              next page if page_path == '.gitkeep'
               file_path = page_path
               file_path = "#{@path}/#{page_path}" if @path
               files_folders << "<a href=\"/edit/#{file_path}\" class=\"file\">#{page_path}</a>"
