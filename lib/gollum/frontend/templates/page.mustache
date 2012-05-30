@@ -7,6 +7,8 @@
     </li>
     <li class="minibutton"><a href="/pages"
       class="action-all-pages">All Pages</a></li>
+    <li class="minibutton"><a href="/fileview"
+    class="action-all-pages">File View</a></li>
     <li class="minibutton" class="jaws">
       <a href="#" id="minibutton-new-page">New Page</a></li>
     {{#editable}}
@@ -16,7 +18,19 @@
   </ul>
 </div>
 <div id="wiki-content">
-<div class="wrap {{#has_footer}} has-footer {{/has_footer}} {{#has_sidebar}}  has-rightbar{{/has_sidebar}}">
+<div class="{{#has_header}}has-header{{/has_header}}{{#has_footer}} has-footer{{/has_footer}}{{#has_sidebar}} has-rightbar{{/has_sidebar}}{{#has_toc}} has-toc{{/has_toc}}">
+  {{#has_toc}}
+  <div id="wiki-toc-main">
+    {{{toc_content}}}
+  </div>
+  {{/has_toc}}
+  {{#has_sidebar}}
+  <div id="wiki-rightbar" class="gollum-{{sidebar_format}}-content">
+    <div id="sidebar-content" class="markdown-body">
+      {{{sidebar_content}}}
+    </div>
+  </div>
+  {{/has_sidebar}}
   <div id="wiki-body" class="gollum-{{format}}-content">
     {{#has_header}}
     <div id="wiki-header" class="gollum-{{header_format}}-content">
@@ -29,13 +43,6 @@
       {{{content}}}
     </div>
   </div>
-  {{#has_sidebar}}
-  <div id="wiki-rightbar" class="gollum-{{sidebar_format}}-content">
-    <div id="sidebar-content" class="markdown-body">
-      {{{sidebar_content}}}
-    </div>
-  </div>
-  {{/has_sidebar}}
   {{#has_footer}}
   <div id="wiki-footer" class="gollum-{{footer_format}}-content">
     <div id="footer-content" class="markdown-body">

@@ -32,6 +32,10 @@ module Gollum
       # sanitization altogether.
       attr_writer :history_sanitization
 
+      # Hash for setting different default wiki options
+      # These defaults can be overridden by options passed directly to initialize()
+      attr_accessor :default_options
+
       # Gets the page class used by all instances of this Wiki.
       # Default: Gollum::Page.
       def page_class
@@ -107,6 +111,7 @@ module Gollum
     self.default_committer_email = 'anon@anon.com'
 
     self.default_ws_subs = ['_','-']
+    self.default_options = {}
 
     # The String base path to prefix to internal links. For example, when set
     # to "/wiki", the page "Hobbit" will be linked as "/wiki/Hobbit". Defaults
@@ -133,6 +138,7 @@ module Gollum
     # path    - The String path to the Git repository that holds the Gollum
     #           site.
     # options - Optional Hash:
+    #           :universal_toc - Table of contents on all pages.  Default: false
     #           :base_path     - String base path for all Wiki links.
     #                            Default: "/"
     #           :page_class    - The page Class. Default: Gollum::Page
@@ -143,9 +149,11 @@ module Gollum
     #           :page_file_dir - String the directory in which all page files reside
     #           :ref - String the repository ref to retrieve pages from
     #           :ws_subs       - Array of chars to sub for ws in filenames.
+    #           :mathjax       - Set to false to disable mathjax.
     #
     # Returns a fresh Gollum::Repo.
     def initialize(path, options = {})
+      options = self.class.default_options.merge(options)
       if path.is_a?(GitAccess)
         options[:access] = path
         path             = path.path
@@ -165,6 +173,8 @@ module Gollum
         self.class.default_ws_subs
       @history_sanitization = options[:history_sanitization] ||
         self.class.history_sanitization
+      @universal_toc = options.fetch(:universal_toc, false)
+      @mathjax = options[:mathjax] || true
     end
 
     # Public: check whether the wiki's git repo exists on the filesystem.
@@ -534,6 +544,12 @@ module Gollum
 
     # Gets the markup class used by all instances of this Wiki.
     attr_reader :markup_classes
+
+    # Toggles display of universal table of contents
+    attr_reader :universal_toc
+
+    # Toggles mathjax.
+    attr_reader :mathjax
 
     # Normalize the data.
     #

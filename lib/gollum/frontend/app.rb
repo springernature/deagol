@@ -3,6 +3,7 @@ require 'pathname'
 require 'sinatra'
 require 'gollum'
 require 'mustache/sinatra'
+require 'useragent'
 
 require 'gollum/frontend/views/layout'
 require 'gollum/frontend/views/editable'
@@ -10,12 +11,31 @@ require 'gollum/frontend/views/editable'
 require File.expand_path '../uri_encode_component', __FILE__
 require File.expand_path '../ldap_authentication', __FILE__
 
+# Run the frontend, based on Sinatra
+#
+# There are a number of wiki options that can be set for the frontend
+#
+# Example
+# require 'gollum/frontend/app'
+# Precious::App.set(:wiki_options, {
+#     :universal_toc => false,
+# }
+#
+# See the wiki.rb file for more details on wiki options
 module Precious
   class App < Sinatra::Base
     register Mustache::Sinatra
     include LdapAuthentication
 
     dir = File.dirname(File.expand_path(__FILE__))
+
+    # Detect unsupported browsers.
+    @@supported_browsers = ['Firefox', 'Chrome', 'Safari']
+
+    def supported_useragent?( user_agent )
+      browser = UserAgent.parse( user_agent ).browser
+      @@supported_browsers.include? browser
+    end
 
     # We want to serve public assets for now
     set :public_folder, "#{dir}/public/gollum"
@@ -130,7 +150,7 @@ module Precious
       wiki         = Gollum::Wiki.new(settings.gollum_path, wiki_options)
 
       if page = wiki.page(@name)
-        if page.format.to_s.include?('markdown')
+        if page.format.to_s.include?('markdown') && supported_useragent?(request.user_agent)
           redirect '/livepreview/index.html?page=' + encodeURIComponent(@name)
         else
           @page = page
@@ -215,10 +235,12 @@ module Precious
 
     post '/preview' do
       authentication_required!
-      wiki      = Gollum::Wiki.new(settings.gollum_path, settings.wiki_options)
-      @name     = "Preview"
-      @page     = wiki.preview_page(@name, params[:content], params[:format])
-      @content  = @page.formatted_data
+      wiki     = Gollum::Wiki.new(settings.gollum_path, settings.wiki_options)
+      @name    = "Preview"
+      @page    = wiki.preview_page(@name, params[:content], params[:format])
+      @content = @page.formatted_data
+      @toc_content = wiki.universal_toc ? @page.toc_data : nil
+      @mathjax = wiki.mathjax
       @editable = false
       mustache :page
     end
@@ -311,6 +333,17 @@ module Precious
       mustache :pages
     end
 
+    get '/fileview' do
+      wiki = Gollum::Wiki.new(settings.gollum_path, settings.wiki_options)
+      @results = Gollum::FileView.new(wiki.pages).render_files
+      File.open('/tmp/log.txt', 'w') {|f|
+        f.puts "log!"
+        f.puts @results
+      }
+      @ref = wiki.ref
+      mustache :file_view
+    end
+
     get '/*' do
       authentication_required!
       show_page_or_file(params[:splat].first)
@@ -321,8 +354,11 @@ module Precious
       if page = wiki.page(name)
         @page = page
         @name = name
-        @content = page.formatted_data
         @editable = true
+        @content = page.formatted_data
+        @toc_content = wiki.universal_toc ? @page.toc_data : nil
+        @mathjax = wiki.mathjax
+
         mustache :page
       elsif file = wiki.file(name)
         content_type file.mime_type
