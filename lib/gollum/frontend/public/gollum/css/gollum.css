@@ -716,6 +716,15 @@ ul.actions {
   padding: 0.25em;
 }
 
+#warnings p {
+  border: 1px solid #988;
+  background: #fee;
+  padding: 0.5em 1em;
+  border-radius: 3px;
+  color: #322;
+  margin-bottom: 1em;
+}
+
 /* @section login */
 
 .login label, .login input {

@@ -20,10 +20,13 @@
   <script type="text/javascript" src="/javascript/ace/theme-solarized_dark.js"></script>
   <script type="text/javascript" src="/javascript/ace/mode-html.js"></script>
   <script type="text/javascript" src="/javascript/ace/mode-css.js"></script>
-  <script type="text/javascript" src="/javascript/editor/gollum.editor.js"></script>
 
   <script type="text/javascript" src="/javascript/editor/gollum.editor.js"></script>
   {{#mathjax}}<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>{{/mathjax}}
+
+  <script type="text/javascript" src="{{ faye_server }}/client.js"></script>
+  <script type="text/javascript" src="{{ faye_server }}/auth/faye_with_auth.js"></script>
+  <script type="text/javascript" src="/javascript/notify_presence.js"></script>
 
   <title>{{title}}</title>
 </head>

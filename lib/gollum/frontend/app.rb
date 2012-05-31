@@ -4,12 +4,17 @@ require 'sinatra'
 require 'gollum'
 require 'mustache/sinatra'
 require 'useragent'
+require 'open-uri'
+require 'json'
 
 require 'gollum/frontend/views/layout'
 require 'gollum/frontend/views/editable'
 
 require File.expand_path '../uri_encode_component', __FILE__
 require File.expand_path '../ldap_authentication', __FILE__
+
+# Load in the config for our Faye (pubsub) service
+FAYE_CONFIG = YAML.load_file( File.expand_path('../../../../config/faye.yml', __FILE__) )
 
 # Run the frontend, based on Sinatra
 #
@@ -61,6 +66,15 @@ module Precious
 
     configure :test do
       enable :logging, :raise_errors, :dump_errors
+    end
+
+    before do
+      @faye_auth_token ||= get_faye_auth_token
+    end
+
+    def get_faye_auth_token
+      auth_details = JSON.parse(open("#{FAYE_CONFIG['server']}/auth?client=#{FAYE_CONFIG['client_id']}&password=#{FAYE_CONFIG['password']}").read)
+      auth_details['authentication_token']
     end
 
     # Deagol helper functions
