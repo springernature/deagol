@@ -17,10 +17,10 @@
   $(document).ready(function() {
     $.GollumEditor();
     $.NotifyPresence({
-      client_id:  '{{faye_client_id}}',
-      token:      '{{faye_auth_token}}',
-      user:       '{{current_user_name}}',
-      email:      '{{current_user_email}}'
+      client_id:          '{{faye_client_id}}',
+      token:              '{{faye_auth_token}}',
+      current_user:       '{{current_user_name}}',
+      current_user_email: '{{current_user_email}}'
     });
   });
 </script>
