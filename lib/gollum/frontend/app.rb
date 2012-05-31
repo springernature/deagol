@@ -4,6 +4,7 @@ require 'sinatra'
 require 'gollum'
 require 'mustache/sinatra'
 require 'useragent'
+require 'rack-flash'
 
 require 'gollum/frontend/views/layout'
 require 'gollum/frontend/views/editable'
@@ -26,6 +27,9 @@ module Precious
   class App < Sinatra::Base
     register Mustache::Sinatra
     include LdapAuthentication
+
+    enable :sessions
+    use Rack::Flash, :accessorize => [:notice, :error]
 
     dir = File.dirname(File.expand_path(__FILE__))
 
@@ -99,6 +103,10 @@ module Precious
       end
     end
 
+    before do
+      @flash = flash
+    end
+
     get '/login' do
       mustache :login
     end
@@ -113,8 +121,10 @@ module Precious
         response.set_cookie('email', @current_user[:email])
         response.set_cookie('name', @current_user[:name])
         response.set_cookie('token', @current_user[:token])
+        flash[:notice] = "Welcome, #{@current_user[:name]}"
         redirect '/'
       else
+        flash[:error] = 'Sorry, your username and password are incorrect - please try again.'
         redirect '/login'
       end
     end

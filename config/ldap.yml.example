@@ -4,5 +4,5 @@
 :base: ou=People,dc=example,dc=com
 :username_attribute: uid
 :displayname_attribute: displayname
-:can_search_anonymously: true
+:can_search_anonymously: false
 

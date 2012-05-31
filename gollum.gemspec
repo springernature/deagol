@@ -34,6 +34,7 @@ Gem::Specification.new do |s|
   s.add_dependency('nokogiri', "~> 1.4")
   s.add_dependency('useragent', "~> 0.4.9")
   s.add_dependency('net-ldap', '~> 0.3.1')
+  s.add_dependency('rack-flash3')
 
   s.add_development_dependency('RedCloth')
   s.add_development_dependency('mocha')

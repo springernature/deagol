@@ -231,6 +231,23 @@ a:hover, a:visited {
   font-weight: bold;
 }
 
+/* @section flash_messages */
+
+#messages .error,
+#messages .notice {
+  border: 1px solid #990806;
+  background: #fee;
+  padding: 0.5em 1em;
+  border-radius: 3px;
+  color: #990806;
+  margin-bottom: 1em;
+}
+
+#messages .notice {
+  background-color: #e8ffdb;
+  color: #007748;
+  border-color: #007748;
+}
 
 /* @section history */
 .history h1 {
