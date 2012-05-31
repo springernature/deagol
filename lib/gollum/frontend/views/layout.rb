@@ -19,6 +19,15 @@ module Precious
       def title
         "Home"
       end
+
+      def current_user_github_email
+        email = @current_user[:github_email]
+        if email && email != 'false'
+          email
+        else
+          false
+        end
+      end
     end
   end
 end
