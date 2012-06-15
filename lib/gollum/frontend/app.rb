@@ -71,12 +71,13 @@ module Precious
       end
 
       def current_user
-        email = request.cookies['email']
-        name  = request.cookies['name']
-        token = request.cookies['token']
+        email        = request.cookies['email']
+        github_email = request.cookies['github_email']
+        name         = request.cookies['name']
+        token        = request.cookies['token']
 
         if email && name && token && token_ok?(email,token)
-          { :email => email, :name => name, :token => token }
+          { :email => email, :name => name, :token => token, :github_email => github_email }
         end
       end
 
@@ -113,6 +114,11 @@ module Precious
         response.set_cookie('email', @current_user[:email])
         response.set_cookie('name', @current_user[:name])
         response.set_cookie('token', @current_user[:token])
+
+        # Add the users github_email as this isn't supplied via LDAP
+        github_email = request.cookies['github_email']
+        @current_user[:github_email] = github_email if github_email
+
         redirect '/'
       else
         redirect '/login'
@@ -121,6 +127,7 @@ module Precious
 
     get '/logout' do
       response.set_cookie('email', false)
+      response.set_cookie('github_email', false)
       response.set_cookie('name', false)
       response.set_cookie('token', false)
       redirect '/login'
@@ -384,11 +391,18 @@ module Precious
     end
 
     def commit_message
-      {
+      commit_msg = {
         :name    => current_user[:name],
         :email   => current_user[:email],
         :message => params[:message]
       }
+
+      if params[:github_email] != ""
+        commit_msg[:email] = params[:github_email]
+        response.set_cookie('github_email', { :value => params[:github_email], :path => '/' })
+      end
+
+      commit_msg
     end
   end
 end
