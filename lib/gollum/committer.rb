@@ -109,6 +109,25 @@ module Gollum
       index.add(fullpath, @wiki.normalize(data))
     end
 
+    # Adds an empty directory to the index (containing a .gitkeep file)
+    #
+    # name   - The String name of the directory to be created
+    def add_dir_to_index(name)
+      path = ::File.join(name, '.gitkeep')
+
+      if index.current_tree && tree = index.current_tree / (@wiki.page_file_dir || '/')
+        downpath = path.downcase.sub(/\.\w+$/, '')
+        tree.blobs.each do |blob|
+          file = blob.name.downcase.sub(/\.\w+$/, '')
+          if downpath == file
+            raise DuplicatePageError.new('/', blob.name, path)
+          end
+        end
+      end
+
+      index.add(path, '')
+    end
+
     # Update the given file in the repository's working directory if there
     # is a working directory present.
     #

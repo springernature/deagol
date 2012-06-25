@@ -363,6 +363,11 @@ context "Wiki sync with working directory" do
     assert !File.exist?(File.join(@path, "New-Page.md"))
   end
 
+  test "add empty directory" do
+    @wiki.create_empty_directory("empty_dir")
+    assert File.exist? "#{@path}/empty_dir/.gitkeep"
+  end
+
   teardown do
     FileUtils.rm_r(@path)
   end

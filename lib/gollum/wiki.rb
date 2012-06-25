@@ -419,6 +419,18 @@ module Gollum
       committer.commit
     end
 
+    def create_empty_directory(name, commit={})
+      committer = Committer.new(self, commit)
+      committer.add_dir_to_index(name)
+
+      committer.after_commit do |index, sha|
+        @access.refresh
+        index.update_working_dir('', name, '')
+      end
+
+      committer.commit
+    end
+
     # Public: Applies a reverse diff to the repo.  If only 1 SHA is given,
     # the reverse diff will be taken from its parent (^SHA...SHA).  If two SHAs
     # are given, the reverse diff is taken from SHA1...SHA2.
